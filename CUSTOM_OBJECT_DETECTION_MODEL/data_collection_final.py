@@ -8,7 +8,7 @@ capture = cv2.VideoCapture(0)
 hd = HandDetector(maxHands=1)
 hd2 = HandDetector(maxHands=1)
 
-count = len(oss.listdir("C:\Users\Arush\OneDrive\Desktop\VS_code\CUSTOM_OBJECT_DETECTION_MODEL\AtoZ_3.1\A"))
+count = len(oss.listdir("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\AtoZ_3.1\\A\\"))
 c_dir = 'A'
 
 offset = 15
@@ -17,14 +17,14 @@ flag = False
 suv = 0
 
 white = np.ones((400, 400), np.uint8) * 255
-cv2.imwrite("C:\Users\Arush\OneDrive\Desktop\VS_code\CUSTOM_OBJECT_DETECTION_MODEL\white.jpg", white)
+cv2.imwrite("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\white.jpg", white)
 
 while True:
     try:
         _, frame = capture.read()
         frame = cv2.flip(frame, 1)
         hands = hd.findHands(frame, draw=False, flipType=True)
-        white = cv2.imread("C:\Users\Arush\OneDrive\Desktop\VS_code\CUSTOM_OBJECT_DETECTION_MODEL\white.jpg")
+        white = cv2.imread("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\white.jpg")
 
         if hands:
             hand = hands[0]
@@ -89,7 +89,7 @@ while True:
             if ord(c_dir) == ord('Z') + 1:
                 c_dir = 'A'
             flag = False
-            count = len(oss.listdir("C:\Users\Arush\OneDrive\Desktop\VS_code\CUSTOM_OBJECT_DETECTION_MODEL\AtoZ_3.1" + (c_dir) + "\\"))
+            count = len(oss.listdir("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\AtoZ_3.1\\" + (c_dir) + "\\"))
 
         if interrupt & 0xFF == ord('a'):
             if flag:
@@ -103,7 +103,7 @@ while True:
             if suv == 180:
                 flag = False
             if step % 3 == 0:
-                cv2.imwrite("C:\Users\Arush\OneDrive\Desktop\VS_code\CUSTOM_OBJECT_DETECTION_MODEL\AtoZ_3.1" + (c_dir) + "\\" + str(count) + ".jpg",
+                cv2.imwrite("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\AtoZ_3.1\\" + (c_dir) + "\\" + str(count) + ".jpg",
                             skeleton1)
                 count += 1
                 suv += 1
