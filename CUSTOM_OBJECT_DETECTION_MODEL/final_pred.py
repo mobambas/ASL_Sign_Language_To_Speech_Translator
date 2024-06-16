@@ -8,8 +8,8 @@ import pyttsx3
 from keras.models import load_model
 from cvzone.HandTrackingModule import HandDetector
 from string import ascii_uppercase
-import enchant
-ddd=enchant.Dict("en-US")
+from spellchecker import SpellChecker  # Use spellchecker
+
 hd = HandDetector(maxHands=1)
 hd2 = HandDetector(maxHands=1)
 import tkinter as tk
@@ -27,7 +27,7 @@ class Application:
     def __init__(self):
         self.vs = cv2.VideoCapture(0)
         self.current_image = None
-        self.model = load_model('/cnn8grps_rad1_model.h5')
+        self.model = load_model("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\cnn8grps_rad1_model.h5")
         self.speak_engine=pyttsx3.init()
         self.speak_engine.setProperty("rate",100)
         voices=self.speak_engine.getProperty("voices")
@@ -140,7 +140,7 @@ class Application:
                 x, y, w, h = hand['bbox']
                 image = cv2image_copy[y - offset:y + h + offset, x - offset:x + w + offset]
 
-                white = cv2.imread("C:\Users\Arush\OneDrive\Desktop\VS_code\CUSTOM_OBJECT_DETECTION_MODEL\white.jpg")
+                white = cv2.imread("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\white.jpg")
                 # img_final=img_final1=img_final2=0
 
                 handz = hd2.findHands(image, draw=False, flipType=True)
@@ -712,26 +712,29 @@ class Application:
         self.ten_prev_char[self.count%10]=ch1
 
 
-        if len(self.str.strip())!=0:
-            st=self.str.rfind(" ")
-            ed=len(self.str)
-            word=self.str[st+1:ed]
-            self.word=word
-            print("----------word = ",word)
-            if len(word.strip())!=0:
-                ddd.check(word)
-                lenn = len(ddd.suggest(word))
+        if len(self.str.strip()) != 0:
+            st = self.str.rfind(" ")
+            ed = len(self.str)
+            word = self.str[st + 1:ed]
+            self.word = word
+            print("----------word = ", word)
+            if len(word.strip()) != 0:
+                # Use spellchecker
+                spell = SpellChecker()
+                misspelled = spell.unknown([word])
+                lenn = len(spell.candidates(word))
+
                 if lenn >= 4:
-                    self.word4 = ddd.suggest(word)[3]
+                    self.word4 = spell.candidates(word)[3]
 
                 if lenn >= 3:
-                    self.word3 = ddd.suggest(word)[2]
+                    self.word3 = spell.candidates(word)[2]
 
                 if lenn >= 2:
-                    self.word2 = ddd.suggest(word)[1]
+                    self.word2 = spell.candidates(word)[1]
 
                 if lenn >= 1:
-                    self.word1 = ddd.suggest(word)[0]
+                    self.word1 = spell.candidates(word)[0]
             else:
                 self.word1 = " "
                 self.word2 = " "
