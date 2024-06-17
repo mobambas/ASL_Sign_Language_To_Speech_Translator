@@ -15,7 +15,7 @@ offset = 15
 step = 1
 flag = False
 suv = 0
-max_images = 80  # Set a limit for the number of images to capture
+max_images = 10  # Set a limit for the number of images to capture
 
 white = np.ones((400, 400), np.uint8) * 255
 cv2.imwrite("C:\\Users\\Arush\\ASL_Sign_Language_To_Speech_Translator\\CUSTOM_OBJECT_DETECTION_MODEL\\white.jpg", white)
