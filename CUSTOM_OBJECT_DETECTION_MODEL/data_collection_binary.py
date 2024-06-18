@@ -5,13 +5,13 @@ import os
 import traceback
 
 # Constants
-DATA_DIR = "D://test_data_2.0"  
+DATA_DIR = "D://test_data_2.0"
 IMAGE_SIZE = 400
 WHITE_COLOR = (255, 255, 255)
 GREEN_COLOR = (0, 255, 0)
 RED_COLOR = (0, 0, 255)
 
-# Initialize hand detector
+# Initialize hand detectors
 hd = HandDetector(maxHands=1)
 hd2 = HandDetector(maxHands=1)
 
@@ -45,30 +45,36 @@ def draw_hand_skeleton(image, hand):
 def process_hand_image(frame, hands, offset):
     if hands:
         hand = hands[0]
-        x, y, w, h = hand['bbox']
-        image = frame[y - offset:y + h + offset, x - offset:x + w + offset]
+        if 'lmList' in hand:
+            x, y, w, h = hand['bbox']
+            image = frame[y:y + h, x:x + w]
 
-        # Process image for different types
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (1, 1), 2)
-        gray2 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        blur2 = cv2.GaussianBlur(gray2, (5, 5), 2)
-        th3 = cv2.adaptiveThreshold(blur2, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-        _, test_image = cv2.threshold(th3, 27, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            # Process image for different types
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            blur = cv2.GaussianBlur(gray, (1, 1), 2)
+            gray2 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            blur2 = cv2.GaussianBlur(gray2, (5, 5), 2)
+            th3 = cv2.adaptiveThreshold(blur2, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+            _, test_image = cv2.threshold(th3, 27, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-        # Create image for display
-        img_final = create_white_image()
-        h = test_image.shape[0]
-        w = test_image.shape[1]
-        img_final[((IMAGE_SIZE - h) // 2):((IMAGE_SIZE - h) // 2) + h, ((IMAGE_SIZE - w) // 2):((IMAGE_SIZE - w) // 2) + w] = test_image
+            # Create image for display
+            img_final = create_white_image()
+            h = test_image.shape[0]
+            w = test_image.shape[1]
+            img_final[((IMAGE_SIZE - h) // 2):((IMAGE_SIZE - h) // 2) + h, ((IMAGE_SIZE - w) // 2):((IMAGE_SIZE - w) // 2) + w] = test_image
 
-        img_final1 = create_white_image()
-        h = blur.shape[0]
-        w = blur.shape[1]
-        img_final1[((IMAGE_SIZE - h) // 2):((IMAGE_SIZE - h) // 2) + h, ((IMAGE_SIZE - w) // 2):((IMAGE_SIZE - w) // 2) + w] = blur
+            img_final1 = create_white_image()
+            h = blur.shape[0]
+            w = blur.shape[1]
+            img_final1[((IMAGE_SIZE - h) // 2):((IMAGE_SIZE - h) // 2) + h, ((IMAGE_SIZE - w) // 2):((IMAGE_SIZE - w) // 2) + w] = blur
 
-        return image, img_final, img_final1
-    return None, None, None
+            return image, img_final, img_final1
+        else:
+            print("No landmarks detected")
+            return None, None, None
+    else:
+        print("No hands detected")
+        return None, None, None
 
 # Function to save images
 def save_images(img_final, img_final1, p_dir, c_dir, count):
@@ -91,7 +97,7 @@ if __name__ == "__main__":
             frame = cv2.flip(frame, 1)
 
             # Detect hands in the main frame
-            hands = hd.findHands(frame, draw=False, flipType=True)
+            hands, _ = hd.findHands(frame, draw=False, flipType=True)
 
             # Process hand image for binary and gray images
             image, img_final, img_final1 = process_hand_image(frame, hands, offset)
@@ -103,14 +109,15 @@ if __name__ == "__main__":
                 x, y, w, h = hand['bbox']
                 cv2.rectangle(white_image, (x - offset, y - offset), (x + w, y + h), (3, 255, 25), 3)
                 image1 = frame[y - offset:y + h + offset, x - offset:x + w + offset]
-                handz = hd2.findHands(image1, draw=False, flipType=True)
+                handz, _ = hd2.findHands(image1, draw=False, flipType=True)
                 if handz:
                     draw_hand_skeleton(white_image, handz[0])
                     cv2.imshow("skeleton", white_image)
 
             # Display images
             cv2.imshow("frame", frame)
-            cv2.imshow("binary", img_final)
+            if img_final is not None:
+                cv2.imshow("binary", img_final)
 
             # Key press handling
             interrupt = cv2.waitKey(1)
@@ -142,52 +149,3 @@ if __name__ == "__main__":
 
     capture.release()
     cv2.destroyAllWindows()
-
-
-
-
-
-
-
-# Resize image to 224x224
-#img_final = cv2.resize(img_final, (224, 224))
-
-# Create a white background image of size 400x400
-#img_finalf = np.ones((400, 400, 3), np.uint8) * 255
-#print("img final shape= ", img_final.shape)
-
-# Iterate over each pixel and set it to either white or black
-#for i in range(400):
-    #for j in range(400):
-        #if img_final[i][j] == 255:
-            #img_finalf[i][j] = [255, 255, 255]
-        #else:
-            #img_finalf[i][j] = [0, 0, 0]
-
-#print("img final f shape= ", img_finalf.shape)
-
-# Apply median blur to the test image
-#image = cv2.medianBlur(test_image, 5)
-
-# Define kernels for dilation and erosion
-#kernel = np.ones((3, 3), np.uint8)
-#kernel1 = np.ones((1, 1), np.uint8)
-
-# Perform dilation followed by erosion
-#dilate = cv2.dilate(image, kernel, iterations=1)
-#dilate = cv2.erode(dilate, kernel1, iterations=1)
-
-# Display the images
-#cv2.imshow("gray", gray)
-#cv2.imshow("blur", blur)
-#cv2.imshow("adapt threshold", th3)
-#cv2.imshow("roi", test_image)
-
-# White increase
-
-#if flag:
-    #if step % 2 == 0:
-        #cv2.imwrite("D:\\sign_data\\B\\b" + str(count) + ".jpg", img_final)
-        #print(count)
-        #count += 1
-    #step += 1
